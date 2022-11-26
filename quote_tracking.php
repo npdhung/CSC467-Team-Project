@@ -11,6 +11,7 @@
     <nav>
         <ul>
             <li><a href="main.php">Main Page</a></li>
+            <li><a href="quote_tracking_edit.php">Edit Quote</a></li>
         </ul>
     </nav>
     <hr>
@@ -41,6 +42,8 @@
         $res = $pdo->query("SELECT COUNT(*) FROM customers");
         $count = $res->fetchColumn();
         echo "$count current customers.";
+        echo "<h5>Click on the link above to skip adding new quote and go to
+        edit quote.</h5>";
         echo "<h5>List of current quotes for user xxxx:</h5>";
         echo "<br>";
         echo "<h5> quotes found.</h5>";
