@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <html>
     <head>
         <title>Quote System - Group 2B</title>
@@ -16,36 +19,48 @@
     <hr>
     <?php
     
-    $dbname = "mysql:host=courses;dbname=z1924897";
-    $user = "z1924897";
-    $pass = "1979Jan05";
+    $local_dbname = "mysql:host=courses;dbname=z1924897";
+    $lc_user = "z1924897";
+    $lc_pass = "1979Jan05";
     try {
-        $pdo = new PDO($dbname, $user, $pass);
+        $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
 
         echo "
-        Try 1 & boley.
+        Try irod or bbay & password.
         ";
 
-        echo "
+        echo "<br><br>
         <form action=\"login_associate.php\" method = GET>
         <label for='usrname'>Username</label>
-        <input type='text' size='5' id='usrname' name='usrname' required/>
+        <input type='text' size='8' id='usrname' name='usrname' required/>
         <label for='psw'>Password</label>
-        <input type='password' id='psw' name='psw' required />
+        <input type='password' size='8' id='psw' name='psw' required />
         <input type='submit' value='Login'>
         </form>";
 
         if($_GET != NULL){
-          // echo $_GET['usrname']; echo $_GET['psw'];
-          // Search database for username and Password
+            // Search database for username and Password
+            $username_in = $_GET["usrname"];
+            $res = $pdo_local->query("SELECT Id, FirstName, LastName, Password 
+              FROM Associates WHERE UserName = '$username_in'");
+            
+            while($fet = $res->fetch(PDO::FETCH_ASSOC)){
+                $assoc_id = $fet["Id"];
+                $assoc_first = $fet["FirstName"];
+                $assoc_last = $fet["LastName"];
+                $pass = $fet["Password"];
+            }
+            
+            if ($_GET["psw"] == $pass) {
 
-          if ($_GET["usrname"] == '1' && $_GET["psw"] == 'boley') {
-            $userId = $_GET["usrname"];
-            // $Sid = "MANAGER"; // if usertype =1
-            // $res = $pdo->prepare("INSERT INTO SESS VALUES(?,?)");
-            // $res->execute(array($userId,$Sid));
-            header('location: quote_tracking.php');
-          } else echo "Invalid username and/or password. Try again!";
+                // Set session variables
+                $_SESSION["assoc_id"] = $assoc_id;
+                $_SESSION["assoc_first"] = $assoc_first;
+                $_SESSION["assoc_last"] = $assoc_last;
+
+                header('location: quote_tracking.php');
+            } 
+            else echo "Invalid username and/or password. Try again!";
         }
 
     }

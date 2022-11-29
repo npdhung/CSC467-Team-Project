@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <html>
     <head>
         <title>Quote System - Group 2B</title>
@@ -24,10 +27,13 @@
 
         echo "<br>";
         echo "<h3>Associate creates new Quote.</h3>";
-        echo "<h4>Plan Repair Services Portal. Username: xxxx</h4>";
+        $first = $_SESSION["assoc_first"];
+        $last = $_SESSION["assoc_last"];
+        echo "<h4>Plan Repair Services Portal welcomes Associate $first $last
+          </h4>";
         echo "<h5>Create new quote for Customer:</h5>";
         
-        echo "<form action=\"quote_tracking.php\" method = GET>";
+        echo "<form action=\"quote_tracking_new.php\" method = GET>";
         echo "<label for='Name'>Select customer: </label>";
         echo "<select id='Name' name='pid'>";
         $res = $pdo->query("SELECT name, id FROM customers");
