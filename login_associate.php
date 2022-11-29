@@ -26,7 +26,7 @@ session_start();
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
 
         echo "
-        Try irod or bbay & password.
+        Try cgil or irod or bbay & password.
         ";
 
         echo "<br><br>
