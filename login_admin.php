@@ -44,7 +44,7 @@
             // $Sid = "CUSTOMER"; // if usertype =2
             // $res = $pdo->prepare("INSERT INTO SESS VALUES(?,?)");
             // $res->execute(array($userId,$Sid));
-            header('location: quote_admin.php');
+            header('location: home.php');
           } else echo "Invalid username and/or password. Try again!";
         }
 
