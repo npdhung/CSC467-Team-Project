@@ -22,7 +22,7 @@
     try {
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
         echo "
-        Try AydeF & Assoc5.
+        <h2>Try AydeF & Assoc5</h2><br>
         ";
 
         echo "
@@ -49,18 +49,69 @@
             $rol=$fet["Role"];
            }
 
-          if (($_GET["psw"] == $pass) && ($rol=="admin")){
+          if (($_GET["psw"] == $pass) && ($rol=="admin" || $rol=="manager")){
             $_SESSION["assoc_id"] = $assoc_id;
             $_SESSION["assoc_first"] = $assoc_first;
             $_SESSION["assoc_last"] = $assoc_last;
             header('location: home.php');
           }
-          } else echo "Invalid username and/or password. Try again!";
+          else{ echo "Invalid username and/or password. Try again!";}
         }
+    }
 
     catch(PDOexception $e) {
         echo "Connection to database failed: " . $e->getMessage();
     }
     ?>
 </body>
+<style>
+input[type=text], input[type=password] {
+  width: 100%;
+  padding: 12px 20px;
+  margin: 8px 0;
+  display: inline-block;
+  border: 1px solid #ccc;
+  box-sizing: border-box;
+}
+
+input[type=submit] {
+  background-color: #04AA6D;
+  color: white;
+  padding: 14px 20px;
+  margin: 8px 0;
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+button:hover {
+  opacity: 0.8;
+}
+
+.cancelbtn {
+  width: auto;
+  padding: 10px 18px;
+  background-color: #f44336;
+}
+
+
+
+.container {
+  padding: 16px;
+}
+
+span.psw {
+  float: right;
+  padding-top: 16px;
+}
+@media screen and (max-width: 300px) {
+  span.psw {
+     display: block;
+     float: none;
+  }
+  .cancelbtn {
+     width: 100%;
+  }
+}
+</style>
 </html>

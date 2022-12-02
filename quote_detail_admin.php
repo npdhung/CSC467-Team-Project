@@ -32,6 +32,7 @@ $stmt->execute([$_GET['Id']]);
 $items=$stmt->fetchAll(PDO::FETCH_ASSOC);
 $res=$pdo->prepare('SELECT * FROM QuoteNotes WHERE QuoteID=?');
 $res->execute([$_GET['Id']]);
+$textNote="";
 while($fet = $res->fetch(PDO::FETCH_ASSOC))
 {
     $textNote=$fet['Note'];

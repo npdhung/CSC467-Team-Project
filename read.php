@@ -11,7 +11,9 @@ $num_ass = $pdo->query('SELECT COUNT(*) FROM Associates')->fetchColumn();
 <?=template_header('Read')?>
 <div class="content read">
 	<h2>Associates</h2>
-	<a href="create.php" class="create-contact">Create Associate</a>
+    <div class="top">
+	    <a href="create.php" >Create Associate</a>
+    </div>
 	<table>
         <thead>
             <tr>

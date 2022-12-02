@@ -1,8 +1,8 @@
 <?php
 function pdo_connect_mysql() {
-	$dbname = "mysql:host=courses;dbname=z1892226";
-	$user = "z1892226";
-	$pass = "2002Feb20";
+	$dbname = "mysql:host=courses;dbname=z1924897";
+	$user = "z1924897";
+	$pass = "1979Jan05";
     try {
     	return new PDO($dbname, $user, $pass);
     } catch (PDOException $exception) {
