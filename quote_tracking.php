@@ -15,6 +15,8 @@ session_start();
         <ul>
             <li><a href="main.php">Main Page</a></li>
             <li><a href="quote_tracking_edit.php">Edit Quote</a></li>
+            <li><a href="quote_tracking_remove.php">Remove Quote</a></li>
+            <li><a href="quote_finalizing.php">Finalize Quote</a></li>
         </ul>
     </nav>
     <hr>
@@ -23,10 +25,9 @@ session_start();
     $user = "student";
     $pass = "student";
     
-    $local_dbname = "mysql:host=courses;dbname=z1924897";
-    $lc_user = "z1924897";
-    $lc_pass = "1979Jan05";
-    
+    // Get the credentials to connect to local server or hopper
+    include 'local_cred.php';
+
     try { // connect to the database
         $pdo = new PDO($dbname, $user, $pass);
 
@@ -55,30 +56,32 @@ session_start();
         $count = $res->fetchColumn();
         echo "$count current customers.";
         echo "<h4>Click on the link above to skip Adding New Quote and go to
-        Edit Quote.</h4>";
+        Edit Quote or Remove a Quote.</h4>";
         echo "<h4>List of current quotes for Associate $first $last:</h4>";
-        
         
         $assoc_id = $_SESSION["assoc_id"];
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
         // ItemNumber -> AssocId
-        $res = $pdo_local->query("SELECT QuoteId, ItemNumber, ItemDescription, 
-          ItemPrice FROM LineItems, Quotes 
-          WHERE LineItems.QuoteId = Quotes.Id 
+        $res = $pdo_local->query("SELECT QuoteId, CustomerId, ItemNumber, 
+          ItemDescription, Quantity, ItemPrice 
+            FROM LineItems, Quotes 
+            WHERE LineItems.QuoteId = Quotes.Id 
             AND Quotes.AssociateId = $assoc_id");
         
         echo "<table border=0 cellpadding=5 align=center>";
-        echo "<tr><th>Quote ID</th><th>Item ID</th><th>Item Description</th>
-          <th>Quantity</th><th>Item Price</th></tr>";
+        echo "<tr><th>QuoteID</th><th>CustomerID</th><th>Item ID</th>
+          <th>Item Description</th><th>Quantity</th><th>Item Price</th></tr>";
         while($fet = $res->fetch(PDO::FETCH_ASSOC)){
             echo"<tr>";
             $quote_id = $fet["QuoteId"];
+            $cust_id = $fet["CustomerId"];
             $part_id = $fet["ItemNumber"];
             $desc = $fet["ItemDescription"];
-            $qty = 1;
+            $qty = $fet["Quantity"];
             $price = $fet["ItemPrice"];
             echo "
             <td>$quote_id</td>
+            <td>$cust_id</td>
             <td>$part_id</td>
             <td>$desc</td>
             <td>$qty</td>
@@ -89,13 +92,9 @@ session_start();
 
         echo "<br>";
         // modify count distinc quote id
-        $res = $pdo_local->query("SELECT COUNT(DISTINCT QuoteId) FROM LineItems, Quotes 
-          WHERE LineItems.QuoteId = Quotes.Id 
-          AND Quotes.AssociateId = $assoc_id");
+        $res = $pdo_local->query("SELECT COUNT(DISTINCT Id) FROM Quotes");
         $count = $res->fetchColumn();
-        echo "$count quotes found.</h5>";
-        echo "<br>";
-        $_SESSION["last_quote_id"] = $count;
+        $_SESSION["max_quote_id"] = $count;
 
     }
     catch(PDOexception $e) { // handle that exception

@@ -11,7 +11,7 @@
     <nav>
         <ul>
             <li><a href="login_associate.php">Quote Tracking</a></li>
-            <li><a href="quote_finalizing.php">Quote Finalizing</a></li>
+            <li><a href="quote_sanctioning.php">Quote Sanctioning</a></li>
             <li><a href="quote_processing.php">Quote Processinng</a></li>
             <li><a href="login_admin.php">Quote Admin</a></li>
         </ul>

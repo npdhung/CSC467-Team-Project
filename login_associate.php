@@ -19,14 +19,14 @@ session_start();
     <hr>
     <?php
     
-    $local_dbname = "mysql:host=courses;dbname=z1924897";
-    $lc_user = "z1924897";
-    $lc_pass = "1979Jan05";
+    // Get the credentials to connect to local server or hopper
+    include 'local_cred.php';
+    
     try {
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
 
         echo "
-        Try cgil or irod or bbay & password.
+        Try JordH & Assoc1.
         ";
 
         echo "<br><br>
@@ -49,6 +49,10 @@ session_start();
                 $assoc_first = $fet["FirstName"];
                 $assoc_last = $fet["LastName"];
                 $pass = $fet["Password"];
+                echo $assoc_id;
+                echo $assoc_first;
+                echo $assoc_last;
+                echo $assoc_id;
             }
             
             if ($_GET["psw"] == $pass) {

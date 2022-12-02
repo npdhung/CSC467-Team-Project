@@ -10,7 +10,7 @@ session_start();
     </head>
 <body>
     <h1>Quote System</h1>
-    <h2>Quote Tracking - Add New Quote</h2>
+    <h2>Quote Tracking - Edit Quote</h2>
     <nav>
         <ul>
             <li><a href="main.php">Main Page</a></li>
@@ -34,39 +34,17 @@ session_start();
         $pdo = new PDO($dbname, $user, $pass);
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
 
-        if (isset($_GET["cid"])) {
-            $_SESSION["cust_id"] = $_GET["cid"];
-            $id = $_SESSION["cust_id"];
-            // Generate new quote id
-            ++$_SESSION["max_quote_id"];
-            $assoc_id = $_SESSION["assoc_id"];
+        if (isset($_GET["qedit_id"])) $_SESSION["quote_id"] = $_GET["qedit_id"];
+        $quote_id = $_SESSION["quote_id"];
 
-            $new_quote_id = $_SESSION["max_quote_id"];
-
-            //Insert 1 line into Quotes table
-            $res = $pdo_local->exec("INSERT INTO Quotes 
-            VALUES ($new_quote_id,$id,null, 'in-process', null, null, null, 
-            $assoc_id);");
-        }
         if (isset($_SESSION["cust_id"])) $id = $_SESSION["cust_id"];
-        $res = $pdo->query("SELECT name, street, city, contact FROM customers WHERE id = $id");
         
         print_r($_SESSION);
-
-
-        $fet = $res->fetch(PDO::FETCH_ASSOC);
-        $cust_name = $fet["name"];
-        $street = $fet["street"];
-        $city = $fet["city"];
-        $contact = $fet["contact"];
         
-        echo "<br>";
-        echo "<h3>New Quote for: $cust_name</h3>";
-        echo "$street<br>$city<br>$contact";
-        
+        // Add new part to quote
         echo "<br><br>";
-        echo "<form action=\"quote_tracking_new.php\" method = GET>";
-        echo "<label for='Name'>Select part: </label>";
+        echo "<form action=\"quote_tracking_edit_detail.php\" method = GET>";
+        echo "<label for='Name'>Select new part: </label>";
         echo "<select id='Name' name='pid'>";
         
         $res = $pdo->query("SELECT number, description FROM parts");
@@ -80,9 +58,7 @@ session_start();
         echo " <input type='submit' value='Add to Quote' />
         </form>";
         echo "(Need to select both part and quantity to add to Quote)";
-
-        $new_quote_id = $_SESSION["max_quote_id"];
-
+        
         if (isset($_GET["pid"]) && isset($_GET["qty"])) {
             $part_id = $_GET["pid"];
             $qty = $_GET["qty"];
@@ -90,17 +66,59 @@ session_start();
             // Get part information from online database
             $res = $pdo->query("SELECT description, price FROM parts 
             WHERE number = $part_id");
-        $fet = $res->fetch(PDO::FETCH_ASSOC);
-        $name = $fet["description"];
-        $price = $fet["price"];
-        
-        $res = $pdo_local->query("SELECT COUNT(DISTINCT Id) FROM Quotes");
-        $count = $res->fetchColumn();
-        $new_quote_id = $count;
-        
-        // Insert new line into LineItems table of local database
-        $res = $pdo_local->exec("INSERT INTO LineItems
+            $fet = $res->fetch(PDO::FETCH_ASSOC);
+            $name = $fet["description"];
+            $price = $fet["price"];
+            
+            // Insert new line into LineItems table of local database
+            $res = $pdo_local->exec("INSERT INTO LineItems
             VALUES ($new_quote_id, $part_id, $qty, '$name', $price);");
+        }
+
+        // Edit existing item in quote
+        echo "<br><br>";
+        echo "<form action=\"quote_tracking_edit_detail.php\" method = GET>";
+        echo "<label for='Name'>Select existing part: </label>";
+        echo "<select id='Name' name='peid'>";
+
+        $res = $pdo_local->query("SELECT ItemNumber, ItemDescription 
+            FROM LineItems
+            WHERE QuoteId = $quote_id");
+        while($fet = $res->fetch(PDO::FETCH_ASSOC)){
+            $part_id = $fet["ItemNumber"];
+            $desc = $fet["ItemDescription"];
+            echo "<option value=".$part_id.">".$desc."</option>";
+        }
+        echo "</select>";
+        echo " Quantity: <input type='text' size='2' name='eqty' />";
+        echo " <input type='submit' value='Add to Quote' />
+        </form>";
+        echo "(Need to select both part and quantity to add to Quote)";
+        
+        if (isset($_GET["peid"]) && isset($_GET["eqty"])) {
+            $part_id = $_GET["peid"];
+            $qty = $_GET["eqty"];
+            
+            // Get part information from online database
+            $res = $pdo->query("SELECT description, price FROM parts 
+            WHERE number = $part_id");
+            $fet = $res->fetch(PDO::FETCH_ASSOC);
+            $name = $fet["description"];
+            $price = $fet["price"];
+            
+            // Update Items in LineItems table of local database
+            If ($qty != 0) // Update
+            {
+                $res = $pdo_local->exec("UPDATE LineItems
+                    SET Quantity = $qty
+                    VALUES ($new_quote_id, $part_id, $qty, '$name', $price);");
+            }
+            // $res = $pdo_local->exec("INSERT INTO LineItems
+            // VALUES ($new_quote_id, $part_id, $qty, '$name', $price);");
+            // If ($qty == 0) remove item
+            
+
+
 
         echo "<br>";
         echo "<h4>Quote content for customer $cust_name - Quote ID 
@@ -118,7 +136,8 @@ session_start();
           ItemDescription, Quantity, ItemPrice 
             FROM LineItems, Quotes 
             WHERE LineItems.QuoteId = Quotes.Id 
-            AND Quotes.AssociateId = $assoc_id");
+            AND Quotes.AssociateId = $assoc_id
+            AND Quotes.Id = $quote_id");
         
         echo "<table border=0 cellpadding=5 align=center>";
         echo "<tr><th>QuoteID</th><th>CustomerID</th><th>Item ID</th>

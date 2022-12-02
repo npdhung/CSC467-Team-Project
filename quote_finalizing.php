@@ -1,3 +1,6 @@
+<?php
+session_start();
+?>
 <html>
     <head>
         <title>Quote System - Group 2B</title>
@@ -11,14 +14,145 @@
     <nav>
         <ul>
             <li><a href="main.php">Main Page</a></li>
+            <li><a href="quote_tracking.php">Quote Tracking</a></li>
+            <li><a href="quote_unfinalizing.php">Unfinalize Quote</a></li>
         </ul>
     </nav>
     <hr>
     <?php
+    $dbname = "mysql:host=blitz.cs.niu.edu:3306;dbname=csci467";
+    $user = "student";
+    $pass = "student";
+    
+    // Get the credentials to connect to local server or hopper
+    include 'local_cred.php';
+
+    try { // connect to the database
+        $pdo = new PDO($dbname, $user, $pass);
+        $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
+        print_r($_SESSION);
+        
         echo "<br>";
-        echo "<h3>Implement Quote Finalizing.</h3>";
-        echo "<h4>Description...</h4>";
-        echo "<br>";
+        echo "<h3>Associate Finalizing Quote: Add discount (% and amount),
+            contact email, note, and generate total price.</h3>";
+        $first = $_SESSION["assoc_first"];
+        $last = $_SESSION["assoc_last"];
+        echo "<h4>Plan Repair Services Portal welcomes Associate $first $last
+          </h4>";
+        
+        echo "<form action=\"quote_finalizing.php\" method = GET>";
+        
+        echo "<label for='Name'>Select Quote ID to Process: </label>";
+        echo "<select id='Name' name='qid'>";
+        $res = $pdo_local->query("SELECT Id, Status FROM Quotes 
+            WHERE Status = 'in-progress'");
+        while($fet = $res->fetch(PDO::FETCH_ASSOC)){
+              $name = $fet["Status"];
+              $qid = $fet["Id"];
+              echo "<option value=".$qid.">".$qid."</option>";
+        }
+        echo "</select>";
+        echo " <input type='submit' value='Select'> </form>";
+        echo "(Can only start Finalizing Quotes that are in-progress status)";
+        
+        if (isset($_GET["qid"]))
+            $_SESSION["quote_id"] = $_GET["qid"];
+        $qid = $_SESSION["quote_id"];
+        // Only show the submit part the first time
+        if (!isset($_GET["email"])) {
+            echo "<br>";
+            $first = $_SESSION["assoc_first"];
+            $last = $_SESSION["assoc_last"];
+            echo "<h4>Input information to start finalizing quote</h4>";
+            echo "<form action=\"quote_finalizing.php\" method = GET>";
+            echo "Contact Email: <input type='email' name='email'> <br>";
+            echo "Note: <input type='text' name='note'> <br>";
+            echo "Discount percent(%): <input type='number' name='dis_pct'> <br>";
+            echo "Discount amount($): <input type='number' name='dis_amt'> <br>";
+            echo "<input type='submit' value='Submit'> <br></form>";
+        }
+        if (isset($_GET["email"])) {
+            $email = $_GET["email"];
+            $note = $_GET["note"];
+            $dis_pct = $_GET["dis_pct"];
+            $dis_amt = $_GET["dis_amt"];
+            
+            // Update email & discount for the quote
+            
+            // Insert new note
+            // $res = $pdo_local->exec("INSERT INTO QuoteNotes (QuoteId, NoteNumber,
+            //     Note)
+            //     VALUES ($qid, 999, $note);");
+            // Generate summary
+            
+            
+            echo "<h4>Quote Summary</h4>";
+            echo "Contact email: $email<br>";
+            echo "Subtotal: $sub_total<br>";
+            echo "Discount 1: $dis_1<br>";
+            echo "Discount 2: $dis_2<br>";
+            echo "Total price: $total<br>";
+
+            
+        
+        }    
+        // List current quotes
+        $assoc_id = $_SESSION["assoc_id"];
+        $res = $pdo_local->query("SELECT QuoteId, CustomerId, ItemNumber, 
+        ItemDescription, Quantity, ItemPrice 
+            FROM LineItems, Quotes 
+            WHERE LineItems.QuoteId = Quotes.Id 
+            AND Quotes.AssociateId = $assoc_id
+            AND QuoteId = $qid");
+        
+        echo "<table border=0 cellpadding=5 align=center>";
+        echo "<tr><th>QuoteID</th><th>CustomerID</th><th>Item ID</th>
+        <th>Item Description</th><th>Quantity</th><th>Item Price</th></tr>";
+        while($fet = $res->fetch(PDO::FETCH_ASSOC)){
+            echo"<tr>";
+            $quote_id = $fet["QuoteId"];
+            $cust_id = $fet["CustomerId"];
+            $part_id = $fet["ItemNumber"];
+            $desc = $fet["ItemDescription"];
+            $qty = $fet["Quantity"];
+            $price = $fet["ItemPrice"];
+            echo "
+            <td>$quote_id</td>
+            <td>$cust_id</td>
+            <td>$part_id</td>
+            <td>$desc</td>
+            <td>$qty</td>
+            <td>$price</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+            
+        
+        // Show QuoteNotes table
+        echo "<h4>List of Quote Status for Associate $first $last:</h4>";
+        
+        $assoc_id = $_SESSION["assoc_id"];
+        $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
+        
+        // Print Quote status table
+        $res = $pdo_local->query("SELECT Id, Status FROM Quotes 
+            WHERE AssociateId = $assoc_id");
+        echo "<table border=0 cellpadding=5 align=center>";
+        echo "<tr><th>Quote ID</th><th>Status</th></tr>";
+        while($fet = $res->fetch(PDO::FETCH_ASSOC)){
+            echo"<tr>";
+            $quote_id = $fet["Id"];
+            $status = $fet["Status"];
+            echo "
+            <td>$quote_id</td>
+            <td>$status</td>";
+            echo "</tr>";
+        }
+        echo "</table>";
+    }
+    catch(PDOexception $e) { // handle that exception
+        echo "Connection to database failed: " . $e->getMessage();
+    }
     ?>
 </body>
 </html>
