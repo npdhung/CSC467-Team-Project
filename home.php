@@ -1,27 +1,25 @@
 <?php
+session_start();
+?>
+<?php
 include 'functions.php';
-
+$id= $_SESSION["assoc_id"];
+$first = $_SESSION["assoc_first"];
+$last = $_SESSION["assoc_last"];
 ?>
 
 <?=template_header('Home')?>
-<head>
 
-        <title>Quote System - Group 2B</title>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-</head>
 <body>
-    <h1>Quote System</h1>
-    <h2>Quote Admin</h2>
-    <nav>
-        <ul>
-            <li><a href="main.php">Main Page</a></li>
-        </ul>
-    </nav>
-    <hr>
 <div class="content">
 	<h2>Home</h2>
-	<p>Welcome to the Admin Page!</p>
+    <?php
+        echo "Welcome to the Admin Page!";
+        echo "<br>Currently Logged in:";
+        echo "<br><b> Id: $id Name: $first $last";
+    ?>
 </div>
+
 </body>
+
 <?=template_footer()?>

@@ -6,6 +6,7 @@ $stmt = $pdo->prepare('SELECT * FROM Associates ORDER BY Id');
 $stmt->execute();
 $associates = $stmt->fetchAll(PDO::FETCH_ASSOC);
 $num_ass = $pdo->query('SELECT COUNT(*) FROM Associates')->fetchColumn();
+
 ?>
 <?=template_header('Read')?>
 <div class="content read">
@@ -20,7 +21,7 @@ $num_ass = $pdo->query('SELECT COUNT(*) FROM Associates')->fetchColumn();
                 <td>UserID</td>
                 <td>Password</td>
                 <td>Accumulated Commission</td>
-                <td>Adress</td>
+                <td>Address</td>
             </tr>
         </thead>
         <tbody>
@@ -31,8 +32,8 @@ $num_ass = $pdo->query('SELECT COUNT(*) FROM Associates')->fetchColumn();
                 <td><?=$associate['LastName']?></td>
                 <td><?=$associate['UserName']?></td>
                 <td><?=$associate['Password']?></td>
-                <td><?=$associate['AccumulatedCommission']?></td>
-                <td><?=$associate['StreetAddress']?></td>
+                <td><?="$".$associate['AccumulatedCommission']?></td>
+                <td><?=$associate['StreetAddress']. $associate['City']. ', ' .$associate['State']. " " .$associate['Zip']?></td>
                 <td class="actions">
                     <a href="update.php?Id=<?=$associate['Id']?>" class="edit"><i class="fas fa-pen fa-xs"></i></a>
                     <a href="delete.php?Id=<?=$associate['Id']?>" class="trash"><i class="fas fa-trash fa-xs"></i></a>

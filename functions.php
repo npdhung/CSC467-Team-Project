@@ -26,6 +26,9 @@ echo <<<EOT
     		<h1>Adminstration </h1>
 			<a href="home.php"><i class="fas fa-home"></i>Home</a>
     		<a href="read.php"><i class="fas fa-address-book"></i>Associates</a>
+			<a href="read2.php"><i class="fas fa-table"></i>Quotes</a>
+			<a href="main.php"><i class="fas fa-arrow-right"></i>Exit</a>
+
     	</div>
     </nav>
 EOT;

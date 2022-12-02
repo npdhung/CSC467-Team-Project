@@ -4,21 +4,20 @@ $pdo = pdo_connect_mysql();
 $msg = '';
 // Check if POST data is not empty
 if(isset($_POST['submit'])) {
-    $Id = isset($_POST['Id']) && !empty($_POST['Id']) && $_POST['Id'] != 'auto' ? $_POST['Id'] : NULL;
-    $first = isset($_POST['first_Name']) ? $_POST['first_Name'] : '';
-    $last = isset($_POST['last_name']) ? $_POST['last_name'] : '';
-    $user = isset($_POST['user']) ? $_POST['user'] : '';
-    $pass = isset($_POST['pass']) ? $_POST['pass'] : '';
-    $role = isset($_POST['role']) ? $_POST['role']:'';
-    $st_ad = isset($_POST['street_add']) ? $_POST['street_add'] : '';
-    $city = isset($_POST['city']) ? $_POST['city'] : '';
-    $state = isset($_POST['state']) ? $_POST['state'] : '';
-    $zip = isset($_POST['zip']) ? $_POST['zip'] : '';
-    $email = isset($_POST['email']) ? $_POST['email'] : '';
-    $comi = isset($_POST['commission']) ? $_POST['commission'] : '';
-    $stmt = $pdo->prepare('INSERT INTO Associates (Id,FirstName, LastName, UserName, Password, Role, StreetAddress, City, State, Zip, Email, AccumulatedCommission) 
-    VALUES(?,?,?,?,?,?,?,?,?,?,?,?)');
-    $stmt->execute([$Id,$first,$last,$user,$pass,$role,$st_ad,$city,$state,$zip,$email,$comi]);
+        $first=$_REQUEST['first_name'];
+        $last=$_REQUEST['last_name'];
+        $user=$_REQUEST['user'];
+        $pass=$_REQUEST['pass'];
+        $role=$_REQUEST['role'];
+        $st_ad=$_REQUEST['street_add'];
+        $city=$_REQUEST['city'];
+        $state=$_REQUEST['state'];
+        $zip=$_REQUEST['zip'];
+        $email=$_REQUEST['email'];
+        $comi=$_REQUEST['commission'];
+    $stmt = $pdo->prepare('INSERT INTO Associates (FirstName, LastName, UserName, Password, Role, StreetAddress, City, State, Zip, Email, AccumulatedCommission) 
+    VALUES(?,?,?,?,?,?,?,?,?,?,?)');
+    $stmt->execute(array($first,$last,$user,$pass,$role,$st_ad,$city,$state,$zip,$email,$comi));
     // Output message
     $msg = 'Created Successfully!';
 }
@@ -27,20 +26,29 @@ if(isset($_POST['submit'])) {
 
 <div class="content update">
 	<h2>Create Associate</h2>
-    <form action="create.php" method="post">
-            <label for="Id">ID</label>
-            <input type="text" name="Id" placeholder="26" value="auto" id="Id">
-            First Name:<input type = "text" name = "first_Name"  id="first_name">
-            Last Name:<input type ="text" name ="last_name"  id="last_name">
-            UserName:<input type ="text" name ="user"  id="user" >
-            Password:<input type ="text" name ="pass"   id="pass">
-            Role:<input type ="text" name ="role"  id="role">
-            Street Adress:<input type ="text" name ="street_add"  id="street_add" >
-            City:<input type ="text" name ="city"   id="city">
-            State:<input type ="text" name ="state"  id="state">
-            Zip:<input type ="text" name ="zip"   id="zip">
-            Email:<input type ="text" name ="email"  id="email">
-            Accumulated Commission:<input type ="text" name ="commission" id="commission"  >
+    <form action="" method="POST">
+            <label for="first_name">First Name:</label>
+            <input type = "text" name = "first_name"  id="first_name">
+            <label for="last_name">Last Name:</label>
+            <input type ="text" name ="last_name"  id="last_name">
+            <label for="user">Username:</label>
+            <input type ="text" name ="user"  id="user" >
+            <label for="pass">Password:</label>
+            <input type ="text" name ="pass"   id="pass">
+            <label for="role">Role:</label>
+            <input type ="text" name ="role"  id="role">
+            <label for="street_add">Street Adress:</label>
+            <input type ="text" name ="street_add"  id="street_add" >
+            <label for="city">City:</label>
+            <input type ="text" name ="city"   id="city">
+            <label for="state">State:</label>
+            <input type ="text" name ="state"  id="state">
+            <label for="zip">Zip Code:</label>
+            <input type ="text" name ="zip"   id="zip">
+            <label for="email">Email:</label>
+            <input type ="text" name ="email"  id="email">
+            <label for="commission">Accumulated Commission:</label>
+            <input type ="text" name ="commission" id="commission"  >
             <input type = "Submit" name = "submit" value = "submit" class="btn"/>
     </form>
     <?php if ($msg): ?>
