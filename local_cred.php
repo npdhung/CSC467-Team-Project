@@ -1,11 +1,11 @@
 <?php
     // local server credentials
-    // $local_dbname = "mysql:host=localhost:8889;dbname=Hung";
-    // $lc_user = "root";
-    // $lc_pass = "root";
+    $local_dbname = "mysql:host=localhost:8889;dbname=Hung_01";
+    $lc_user = "root";
+    $lc_pass = "root";
 
     // hopper server credentials
-    $local_dbname = "mysql:host=courses;dbname=z1924897";
-    $lc_user = "z1924897";
-    $lc_pass = "1979Jan05";
+    // $local_dbname = "mysql:host=courses;dbname=z1924897";
+    // $lc_user = "z1924897";
+    // $lc_pass = "1979Jan05";
 ?>

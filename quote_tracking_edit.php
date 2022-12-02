@@ -30,7 +30,6 @@ session_start();
     try { // connect to the database
         $pdo = new PDO($dbname, $user, $pass);
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
-        print_r($_SESSION);
         
         echo "<br>";
         echo "<h3>Associate Edit Quote.</h3>";

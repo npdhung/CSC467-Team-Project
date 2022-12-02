@@ -30,11 +30,9 @@ session_start();
     try { // connect to the database
         $pdo = new PDO($dbname, $user, $pass);
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
-        print_r($_SESSION);
         
         echo "<br>";
-        echo "<h3>Associate Finalizing Quote: Add discount (% and amount),
-            contact email, note, and generate total price.</h3>";
+        $assoc_id = $_SESSION["assoc_id"];
         $first = $_SESSION["assoc_first"];
         $last = $_SESSION["assoc_last"];
         echo "<h4>Plan Repair Services Portal welcomes Associate $first $last
@@ -43,9 +41,10 @@ session_start();
         echo "<form action=\"quote_finalizing.php\" method = GET>";
         
         echo "<label for='Name'>Select Quote ID to Process: </label>";
-        echo "<select id='Name' name='qid'>";
+        echo "<select id='Name' name='qfid'>";
         $res = $pdo_local->query("SELECT Id, Status FROM Quotes 
-            WHERE Status = 'in-progress'");
+            WHERE Status = 'in-process'
+            AND AssociateId = $assoc_id");
         while($fet = $res->fetch(PDO::FETCH_ASSOC)){
               $name = $fet["Status"];
               $qid = $fet["Id"];
@@ -55,11 +54,10 @@ session_start();
         echo " <input type='submit' value='Select'> </form>";
         echo "(Can only start Finalizing Quotes that are in-progress status)";
         
-        if (isset($_GET["qid"]))
-            $_SESSION["quote_id"] = $_GET["qid"];
+        if (isset($_GET["qfid"]))
+            $_SESSION["quote_id"] = $_GET["qfid"];
         $qid = $_SESSION["quote_id"];
         // Only show the submit part the first time
-        if (!isset($_GET["email"])) {
             echo "<br>";
             $first = $_SESSION["assoc_first"];
             $last = $_SESSION["assoc_last"];
@@ -70,32 +68,74 @@ session_start();
             echo "Discount percent(%): <input type='number' name='dis_pct'> <br>";
             echo "Discount amount($): <input type='number' name='dis_amt'> <br>";
             echo "<input type='submit' value='Submit'> <br></form>";
-        }
-        if (isset($_GET["email"])) {
-            $email = $_GET["email"];
-            $note = $_GET["note"];
-            $dis_pct = $_GET["dis_pct"];
-            $dis_amt = $_GET["dis_amt"];
-            
-            // Update email & discount for the quote
-            
-            // Insert new note
-            // $res = $pdo_local->exec("INSERT INTO QuoteNotes (QuoteId, NoteNumber,
-            //     Note)
-            //     VALUES ($qid, 999, $note);");
-            // Generate summary
-            
-            
-            echo "<h4>Quote Summary</h4>";
-            echo "Contact email: $email<br>";
-            echo "Subtotal: $sub_total<br>";
-            echo "Discount 1: $dis_1<br>";
-            echo "Discount 2: $dis_2<br>";
-            echo "Total price: $total<br>";
+            if (isset($_GET["email"])) {
+                $email = $_GET["email"];
+                $note = $_GET["note"];
+                $dis_pct = $_GET["dis_pct"];
+                $dis_amt = $_GET["dis_amt"];
+                
+                // Update email & discount for the quote
+                $res = $pdo_local->exec("UPDATE Quotes
+                    SET ContactCust = '$email'
+                    WHERE Id = $qid;");
+                $res = $pdo_local->exec("UPDATE Quotes
+                    SET DiscountPercentage = $dis_pct
+                    WHERE Id = $qid;");
+                $res = $pdo_local->exec("UPDATE Quotes
+                    SET DiscountAmount = $dis_amt
+                    WHERE Id = $qid;");
+                
+                // Insert new note to QuoteNotes table
+                $res = $pdo_local->exec("INSERT INTO QuoteNotes
+                    (QuoteId, Note)
+                    VALUES ($qid, '$note');");
+                
+                // Generate summary
+                $res = $pdo_local->query("SELECT Quantity, ItemPrice FROM LineItems
+                    WHERE QuoteId = $qid");
+                $sub_total = 0;
+                while($fet = $res->fetch(PDO::FETCH_ASSOC)){
+                    $qty = $fet["Quantity"];
+                    $item_price = $fet["ItemPrice"];
+                    $sub_total += $qty * $item_price;
+                }
+                $dis_1 = ($sub_total * $dis_pct) / 100;
+                $total = $sub_total - $dis_1 - $dis_amt;
+                echo "<h4>Quote Summary</h4>";
+                echo "Contact email: $email<br>";
+                echo "Subtotal: $sub_total<br>";
+                echo "Discount 1: $dis_1<br>";
+                echo "Discount 2: $dis_amt<br>";
+                echo "Total price: $total<br>";
 
-            
-        
-        }    
+                $_SESSION["total_price"] = $total;
+
+                // Finalize the quote
+                if (isset($_GET["qfn_id"]))
+                {
+                    $_SESSION["quote_id"] = $_GET["qfn_id"];
+                    $qid = $_SESSION["quote_id"];
+                    
+                    // Update status and total price
+                    $res = $pdo_local->exec("UPDATE Quotes
+                        SET Status = 'finalized'
+                        WHERE Id = $qid;");
+                    $res = $pdo_local->exec("UPDATE Quotes
+                        SET TotalPrice = $total
+                        WHERE Id = $qid;");
+                    echo "Quote $qid status change to finalized,";
+                    echo "and the totalprice is updated in the database";
+                }
+                
+                echo "<form action=\"quote_finalizing_end.php\" method = GET>";
+                echo "<label for='Name'>Quote ID: </label>";
+                echo "<select id='Name' name='qfn_id'>";
+                echo "<option value=".$qid.">".$qid."</option>";
+                echo "</select>";
+                echo " <input type='submit' value='Finalize this Quote'> </form>";
+                
+                echo "<br><br>";
+            }
         // List current quotes
         $assoc_id = $_SESSION["assoc_id"];
         $res = $pdo_local->query("SELECT QuoteId, CustomerId, ItemNumber, 

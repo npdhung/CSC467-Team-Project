@@ -46,7 +46,7 @@ session_start();
             //Insert 1 line into Quotes table
             $res = $pdo_local->exec("INSERT INTO Quotes 
             VALUES ($new_quote_id,$id,null, 'in-process', null, null, null, 
-            $assoc_id);");
+            null, $assoc_id);");
         }
         if (isset($_SESSION["cust_id"])) $id = $_SESSION["cust_id"];
         $res = $pdo->query("SELECT name, street, city, contact FROM customers WHERE id = $id");
@@ -141,6 +141,7 @@ session_start();
             echo "</tr>";
         }
         echo "</table>";
+        echo "<br><br>";
     }
     catch(PDOexception $e) { // handle that exception
         echo "Connection to database failed: " . $e->getMessage();

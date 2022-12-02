@@ -10,11 +10,13 @@ session_start();
     </head>
 <body>
     <h1>Quote System</h1>
-    <h2>Quote Sanctioning</h2>
+    <h2>Quote Tracking - Unfinalize Quote</h2>
     <nav>
         <ul>
             <li><a href="main.php">Main Page</a></li>
-            <li><a href="quote_processing.php">Process Quote</a></li>
+            <li><a href="quote_tracking_edit.php">Edit Quote</a></li>
+            <li><a href="quote_tracking_remove.php">Remove Quote</a></li>
+            <li><a href="quote_finalizing.php">Finalize Quote</a></li>
         </ul>
     </nav>
     <hr>
@@ -31,59 +33,63 @@ session_start();
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
         
         echo "<br>";
-        echo "<h3>Sanctioned Quote are Finalized Quote that is accepted by 
-            Customer.</h3>";
+        echo "<h3>Associate Unfinalize Quote.</h3>";
+        $assoc_id = $_SESSION["assoc_id"];
+        $first = $_SESSION["assoc_first"];
+        $last = $_SESSION["assoc_last"];
+        echo "<h4>Plan Repair Services Portal welcomes Associate $first $last
+          </h4>";
         
-        echo "<form action=\"quote_sanctioning.php\" method = GET>";
+        echo "<form action=\"quote_unfinalizing.php\" method = GET>";
         
-        echo "<label for='Name'>Select Quote ID to Sanction: </label>";
-        echo "<select id='Name' name='qsa_id'>";
+        echo "<label for='Name'>Select Quote ID to Unfinalize: </label>";
+        echo "<select id='Name' name='quf_id'>";
         $res = $pdo_local->query("SELECT Id FROM Quotes 
-            WHERE Status = 'finalized'");
+            WHERE Status = 'finalized'
+            AND AssociateId = $assoc_id");
         while($fet = $res->fetch(PDO::FETCH_ASSOC)){
-              $qsa_id = $fet["Id"];
-              echo "<option value=".$qsa_id.">".$qsa_id."</option>";
+              $quf_id = $fet["Id"];
+              echo "<option value=".$quf_id.">".$quf_id."</option>";
         }
         echo "</select>";
-        echo " <input type='submit' value='Select this Quote'> </form>";
-        echo "(Only quotes with finalized status are available to be Sanctioned)";
+        echo " <input type='submit' value='Unfinalize this Quote'> </form>";
+        echo "(Only quotes with finalized status are available to Unfinalized)";
         
+        $assoc_id = $_SESSION["assoc_id"];
         $pdo_local = new PDO($local_dbname, $lc_user, $lc_pass);
         
         // Unfinalize the quote
-        if (isset($_GET["qsa_id"]))
+        if (isset($_GET["quf_id"]))
         {
-            $_SESSION["quote_id"] = $_GET["qsa_id"];
+            $_SESSION["quote_id"] = $_GET["quf_id"];
             $qid = $_SESSION["quote_id"];
             
             // Update status and total price
             $res = $pdo_local->exec("UPDATE Quotes
-                SET Status = 'sanctioned'
+                SET Status = 'in-process'
+                WHERE Id = $qid;");
+            $res = $pdo_local->exec("UPDATE Quotes
+                SET TotalPrice = NULL
                 WHERE Id = $qid;");
             
-            echo "<h4>Quote $qid status change to sanctioned,";
-            echo " and will be ready to be process.</h4>";
+            echo "<h4>Quote $qid status change to finalized and totalprice is reset.</h4>";
+            echo "<h4>The quote will be able to be modified.</h4>";
         }
         
-        echo "<h4>List of quote status:</h4>";
+        echo "<h4>List of quote status for Associate $first $last:</h4>";
 
         // Print Quote status table
-        $res = $pdo_local->query("SELECT Id, Status, TotalPrice, AssociateId
-            FROM Quotes");
+        $res = $pdo_local->query("SELECT Id, Status FROM Quotes 
+            WHERE AssociateId = $assoc_id");
         echo "<table border=0 cellpadding=5 align=center>";
-        echo "<tr><th>Quote ID</th><th>Status</th><th>TotalPrice</th><th>Associate ID</th>
-            </tr>";
+        echo "<tr><th>Quote ID</th><th>Status</th></tr>";
         while($fet = $res->fetch(PDO::FETCH_ASSOC)){
             echo"<tr>";
             $quote_id = $fet["Id"];
             $status = $fet["Status"];
-            $total = $fet["TotalPrice"];
-            $assoc_id = $fet["AssociateId"];
             echo "
             <td>$quote_id</td>
-            <td>$status</td>
-            <td>$total</td>
-            <td>$assoc_id</td>";
+            <td>$status</td>";
             echo "</tr>";
         }
         echo "</table>";
@@ -95,5 +101,3 @@ session_start();
     ?>
 </body>
 </html>
-    
-        

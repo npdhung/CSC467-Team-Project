@@ -72,7 +72,7 @@ session_start();
             
             // Insert new line into LineItems table of local database
             $res = $pdo_local->exec("INSERT INTO LineItems
-            VALUES ($new_quote_id, $part_id, $qty, '$name', $price);");
+            VALUES ($quote_id, $part_id, $qty, '$name', $price);");
         }
 
         // Edit existing item in quote
@@ -91,9 +91,9 @@ session_start();
         }
         echo "</select>";
         echo " Quantity: <input type='text' size='2' name='eqty' />";
-        echo " <input type='submit' value='Add to Quote' />
+        echo " <input type='submit' value='Edit this item' />
         </form>";
-        echo "(Need to select both part and quantity to add to Quote)";
+        echo "(Need to select both part and quantity, set quantity = 0 to remove item)";
         
         if (isset($_GET["peid"]) && isset($_GET["eqty"])) {
             $part_id = $_GET["peid"];
@@ -111,19 +111,14 @@ session_start();
             {
                 $res = $pdo_local->exec("UPDATE LineItems
                     SET Quantity = $qty
-                    VALUES ($new_quote_id, $part_id, $qty, '$name', $price);");
+                    WHERE QuoteId = $quote_id
+                    AND ItemNumber = $part_id;");
             }
-            // $res = $pdo_local->exec("INSERT INTO LineItems
-            // VALUES ($new_quote_id, $part_id, $qty, '$name', $price);");
-            // If ($qty == 0) remove item
-            
-
-
-
-        echo "<br>";
-        echo "<h4>Quote content for customer $cust_name - Quote ID 
-        $new_quote_id.</h4>";
-        
+            else // Remove item
+            {
+                $res = $pdo_local->exec("DELETE FROM LineItems
+                    WHERE ItemNumber = $part_id;");
+            }
         }   
 
         echo "<br>";

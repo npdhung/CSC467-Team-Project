@@ -31,8 +31,6 @@ session_start();
     try { // connect to the database
         $pdo = new PDO($dbname, $user, $pass);
 
-        print_r($_SESSION);
-        
         echo "<br>";
         echo "<h3>Associate creates new Quote.</h3>";
         $first = $_SESSION["assoc_first"];
@@ -90,7 +88,7 @@ session_start();
         }
         echo "</table>";
 
-        echo "<br>";
+        echo "<br><br>";
         // modify count distinc quote id
         $res = $pdo_local->query("SELECT COUNT(DISTINCT Id) FROM Quotes");
         $count = $res->fetchColumn();
